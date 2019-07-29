@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var config = require('./config/config.js');
 var logger = require('morgan');
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb+srv://belkacem:wC7dMsSX2s0PDBke@cluster0-1po8u.mongodb.net/test?retryWrites=true&w=majority'
 var madb;
 var mongo = require('./bdd/bdd.js');
 var bodyParser = require('body-parser');

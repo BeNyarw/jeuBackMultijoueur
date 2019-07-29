@@ -1,18 +1,44 @@
 window.addEventListener('load',function(){
   var socket = io('http://localhost:3000');
   var user = '';
-  var gameLauncher = function(idPlayer){  var canvas = document.getElementById('canvas');
+
+
+
+  socket.on('connect',function(){
+    console.log('connected')
+    socket.emit('gameIn',{
+      connected : 'true'
+    });
+    socket.on('gameProvider',function(usr){
+      console.log(usr);
+    })
+    socket.on('warningOtherPlayer',function(usr){
+      console.log(usr);
+    })
+    socket.on('hey',function(usr){
+      gameLauncher(usr.name,usr.otherPlayer);
+    })
+  });
+
+
+//gameLauncher(data.user);
+
+
+  var gameLauncher = function(idPlayer,otherPlayer){  var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
   var main = document.getElementById('main');
   var particule = false;
   var superGravity = false;
   var WINDOW_WIDTH = document.getElementById("gameWindow").clientWidth;
   var WINDOW_HEIGHT =  document.getElementById("gameWindow").clientHeight;
+  var sidebar =  document.getElementById("sidebar");
   var optionTabShowing = true;
   var nmbStar = 100
   var galaxy = {};
   var users = {};
-  var spiritMain = {};
+  var idPlayers = {};
+  var otherPlayers = {};
+  var spiritMainOther = {};
   var go;
   var grd;
   var gauge = 0;
@@ -148,8 +174,8 @@ window.addEventListener('load',function(){
       gradiCircle: function(x,y,size,color1,color2){
         if (size > 0) {
           grd = ctx.createRadialGradient(x, y, size, x, y, 5 );
-          grd.addColorStop(0, color1);
-          grd.addColorStop(1, color2);
+          grd.addColorStop(0, 'red');
+          grd.addColorStop(1, 'white');
           ctx.fillStyle = grd;
           ctx.beginPath();
           ctx.arc(x, y, size, 0, Math.PI * 2,false);
@@ -216,7 +242,7 @@ window.addEventListener('load',function(){
           }else {
             if (stars.corrupt) {
                 init.draw.circle(stars.coordonate.x,stars.coordonate.y,11,'red')
-            }else if(!spiritMain.corrupt ){
+            }else if(!idPlayers.corrupt ){
                 init.draw.circle(stars.coordonate.x,stars.coordonate.y,11,'white')
             }
           }
@@ -238,9 +264,9 @@ window.addEventListener('load',function(){
         if (countWing ) {
         countWing2 = countWing2 - 0.03
         }
-        init.draw.bezierLine((spiritMain.coordonate.x),(spiritMain.coordonate.y ),countWing2,'rgba(153, 198, 232,  ' + spiritMain.albedo + ')')
-        init.draw.bezierLine((spiritMain.coordonate.x),(spiritMain.coordonate.y ),-countWing2,'rgba(153, 198, 232,  ' + spiritMain.albedo + ')')
-        init.draw.gradiCircle(spiritMain.coordonate.x,spiritMain.coordonate.y,10 + (size * 2),'rgba(153, 198, 232, ' + spiritMain.albedo + ')',color)
+        init.draw.bezierLine(parseFloat(spiritMain.x),parseFloat(spiritMain.y),countWing2,color)
+        init.draw.bezierLine(parseFloat(spiritMain.x),parseFloat(spiritMain.y ),-countWing2,color)
+        //init.draw.gradiCircle(parseFloat(spiritMain.x),parseFloat(spiritMain.y),10 + (size * 2),'rgba(153, 198, 232, ' + spiritMain.albedo + ')', color)
       }
     },
     //DÃ©claration des methodes de gestion de mouvement, j'ai ici deux mÃ©thodes et deux faÃ§on d'aborder le mouvement, la deuxiÃ¨me est retenu mais la premiÃ¨re reste Ã  des fins de debug
@@ -402,7 +428,7 @@ window.addEventListener('load',function(){
         }
       },
       blackHole: function(blackH,star){
-        if (blackH.coordonate.x <= star.coordonate.x + 10 && blackH.coordonate.x + 10 >= star.coordonate.x && blackH.coordonate.y <= star.coordonate.y + 10 && blackH.coordonate.y + 10>= star.coordonate.y && star.state) {
+        if (blackH.x <= star.coordonate.x + 10 && blackH.x + 10 >= star.coordonate.x && blackH.y <= star.coordonate.y + 10 && blackH.y + 10>= star.coordonate.y && star.state) {
           if (star.corrupt && blackH.life > 0  && !blackH.touched) {
             blackH.touched = true;
             init.animation.touched(blackH)
@@ -421,9 +447,10 @@ window.addEventListener('load',function(){
     },
       //FonctionnalitÃ© de lien en plus de la collision
     link: function(source,element){
-          var dist =  Math.sqrt(Math.pow((source.coordonate.x - element.coordonate.x), 2) + Math.pow((source.coordonate.y - element.coordonate.y), 2));
+          var dist =  Math.sqrt(Math.pow((source.x - element.coordonate.x), 2) + Math.pow((source.y - element.coordonate.y), 2));
+
           if (dist < 150 && element.size > 0 && !element.corrupt) {
-            init.draw.line(source.coordonate.x,source.coordonate.y,element.coordonate.x,element.coordonate.y,element.size * 7,'rgba(255,255,255,' + element.size +')')
+            init.draw.line(source.x,source.y,element.coordonate.x,element.coordonate.y,element.size * 7,'rgba(255,255,255,' + element.size +')')
             element.size = element.size - 0.01
             element.linked = true;
             init.draw.outerCircle(element.coordonate.x,element.coordonate.y,element.size * 30,2,'rgba(255,255,255,0.5)')
@@ -464,7 +491,7 @@ window.addEventListener('load',function(){
       }
     },
     hud : function(){ //L'affichage des vies, techno dÃ©bloquÃ©s, jauge de compÃ©tences
-      for (var i = 0; i < spiritMain.life; i++) {
+      for (var i = 0; i < idPlayers.life; i++) {
         ctx.translate(50 ,40 + (i *50))
         ctx.rotate(3.15);
         ctx.beginPath();
@@ -502,42 +529,38 @@ window.addEventListener('load',function(){
         init.draw.text(star.destination.x - star.x + ' - ' + context.percentx,star.x + 10,star.y +10)*/
       }
     },
-    gameOver: function(spiritMain){ // Gestion du Game over (fin de partie littÃ©ral, activÃ© en gagnant ou en perdant)
-      spiritMain.coordonate.destination.x = WINDOW_WIDTH / 2;
-      spiritMain.coordonate.destination.y = WINDOW_HEIGHT / 2;
+    gameOver: function(idPlayers){ // Gestion du Game over (fin de partie littÃ©ral, activÃ© en gagnant ou en perdant)
+      idPlayers.coordonate.destination.x = WINDOW_WIDTH / 2;
+      idPlayers.coordonate.destination.y = WINDOW_HEIGHT / 2;
       sidebar.style.display = 'block';
-      start.style.display = 'block';
       canvas.style.cursor = 'auto'
       cancelAnimationFrame(go);
     },
     mainLoop : function(){ //Boucle principal
       init.setBackground();
       init.hud();
-      if (spiritMain.life === 0) {
-        spiritMain.state = false;
+      if (idPlayers.life === 0) {
+        idPlayers.state = false;
       }
       if (gauge === nmbStar) {
-        init.gameOver(spiritMain)
-        msg.innerHTML = "GagnÃ© !"
-        start.value = 'Recommencer ?'
+
+        socket.emit('gameOver',{looser : otherPlayer,winner: idPlayer})
       }
-      if (!spiritMain.state) {
-        init.gameOver(spiritMain)
-        msg.innerHTML = "Perdu"
-        start.value = 'Recommencer ?'
+      if (!idPlayers.state) {
+
+        socket.emit('gameOver',{looser : idPlayer,winner: otherPlayer})
+
       }else {
-        init.draw.spiritShape(spiritMain,spiritMain.size,spiritMain.color)
-        for (var spirit in users) {
-          init.draw.spiritShape(users[spirit],users[spirit].size,users[spirit].color)
-        }
+        init.draw.spiritShape(idPlayers,idPlayers.size,idPlayers.color)
+        init.draw.spiritShape(otherPlayers,otherPlayers.size,otherPlayers.color)
       }
       for (var star in galaxy) {
         star = galaxy[star]
-        init.collision.blackHole(spiritMain,star)
+        init.collision.blackHole(idPlayers,star)
         init.draw.starShape(star)
         init.movmtTo2(star.coordonate,10)
         if (clickTruthy) {
-          init.link(spiritMain,star);
+          init.link(idPlayers,star);
         }
       }
   }
@@ -550,8 +573,12 @@ window.addEventListener('load',function(){
   var startGame = function(){ //Fonction de dÃ©marrage du jeu
   init.setSize();
   init.setGalaxy('white');
-  spiritMain = new init.setStars('spiritMain', 'white');
-  init.setSpiritMain(spiritMain,'white')
+
+  idPlayers = new init.setStars(idPlayer, 'white');
+  otherPlayers = new init.setStars(otherPlayer, 'red');
+  init.setSpiritMain(idPlayers,'white',idPlayer)
+  init.setSpiritMain(otherPlayers,'red',otherPlayer)
+
   gauge = 0;
   }
 
@@ -569,22 +596,11 @@ window.addEventListener('load',function(){
   canvas.addEventListener('mousedown',function(event){
       clickTruthy = true;
   })
-
   canvas.addEventListener('mouseup',function(event){
       clickTruthy = false;
   })
-
-  socket.on('mooveDisplay',function(data){
-    spiritMain.coordonate.x = data.x;
-    spiritMain.coordonate .y = data.y;
-  })
-  socket.on('mooveOtherDisplay',function(data){
-    users[data.user].coordonate.x = data.x;
-    users[data.user].coordonate .y = data.y;
-  })
-
   canvas.addEventListener('mousemove',function(event){
-      if (spiritMain.state) {
+      if (idPlayers.state) {
           socket.emit('moove',{
             user : idPlayer,
             x: event.offsetX,
@@ -592,116 +608,40 @@ window.addEventListener('load',function(){
           })
       }
     })
+    socket.on('mooving',function(data){
 
-    socket.on('OtherPlayerAssign',function(data){
-      users[data.user] = {};
-      users[data.user].name = data.user;
-      users[data.user].color = 'red';
-      users[data.user].arrive = false;
-      users[data.user].speed = 50;
-      users[data.user].velocity;
-      users[data.user].state = true;
-      users[data.user].size = Math.random() * 0.7 + 0.3;
-      users[data.user].linked = false;
-      users[data.user].corrupt = false;
-      users[data.user].siblings = [];
-      users[data.user].albedo = [Math.random() + 0.3,0,true]
-      users[data.user].coordonate = {
-          x : WINDOW_WIDTH / 2,//Math.floor(Math.random() * (0 - 20)) + (ctx.canvas.width +  50),
-          y : WINDOW_HEIGHT / 2,//Math.floor(Math.random() * (0 - 20)) + (ctx.canvas.height + 50),
-          velocityX:0,
-          velocityY:0,
-          speed : 1,
-          angle : Math.floor(Math.random() * 360),
-          angleSpeed : 3,
-          destination:{
-            x : Math.floor(Math.random() * ctx.canvas.width ),
-            y : Math.floor(Math.random() * ctx.canvas.height),
-            velocityX :0,
-            velocityY :0,
-            speed : 1,
-            destination:{
-              x : Math.floor(Math.random() * ctx.canvas.width),
-              y : Math.floor(Math.random() * ctx.canvas.height),
-              velocityX:0,
-              velocityY:0,
-              speed : 1,
-          }
+        if(data.name.name === idPlayer){
+          idPlayers.x = data.x
+          idPlayers.y = data.y
+        }else{
+          otherPlayers.x = data.x
+          otherPlayers.y = data.y
         }
-      };
-      users[data.user].life = 3;
-      users[data.user].albedo = 1;
-      users[data.user].touched = false;
-      socket.emit('okep',{
-        user : user,
-        sockeid : data.sockeid
-      });
     })
-    socket.on('vlaENCULE',function(data){
-      idPlayers.push(data.user);
+    socket.on('loose',function(data){
+      init.gameOver(idPlayers)
+      msg.innerHTML = "Perdu"
+      setTimeout(function(){
+        socket.disconnect();
+        window.location.replace('http://localhost:3000/logout')
+      },2000)
 
-      users[data.user] = {};
-      users[data.user].name = data.user;
-      users[data.user].color = 'red';
-      users[data.user].arrive = false;
-      users[data.user].speed = 50;
-      users[data.user].velocity;
-      users[data.user].state = true;
-      users[data.user].size = Math.random() * 0.7 + 0.3;
-      users[data.user].linked = false;
-      users[data.user].corrupt = false;
-      users[data.user].siblings = [];
-      users[data.user].albedo = [Math.random() + 0.3,0,true]
-      users[data.user].coordonate = {
-          x : WINDOW_WIDTH / 2,//Math.floor(Math.random() * (0 - 20)) + (ctx.canvas.width +  50),
-          y : WINDOW_HEIGHT / 2,//Math.floor(Math.random() * (0 - 20)) + (ctx.canvas.height + 50),
-          velocityX:0,
-          velocityY:0,
-          speed : 1,
-          angle : Math.floor(Math.random() * 360),
-          angleSpeed : 3,
-          destination:{
-            x : Math.floor(Math.random() * ctx.canvas.width ),
-            y : Math.floor(Math.random() * ctx.canvas.height),
-            velocityX :0,
-            velocityY :0,
-            speed : 1,
-            destination:{
-              x : Math.floor(Math.random() * ctx.canvas.width),
-              y : Math.floor(Math.random() * ctx.canvas.height),
-              velocityX:0,
-              velocityY:0,
-              speed : 1,
-          }
-        }
-      };
-      users[data.user].life = 3;
-      users[data.user].albedo = 1;
-      users[data.user].touched = false;
+
     })
+    socket.on('win',function(data){
+      init.gameOver(idPlayers)
+      msg.innerHTML = "Gagné !"
+      setTimeout(function(){
+        socket.disconnect()
+        window.location.replace('http://localhost:3000/logout')
+      },2000)
 
-  }
+    })
 
 window.addEventListener('resize',function(){ // Gestion de redimension de la page
   init.setSize();
 });
 
-socket.on('connect',function(){
-  socket.emit('newPlayer',{
-    coucou : 'coucou'
-  });
 
-  socket.on('newPlayerAssign',function(data){
-    user = data.user;
-    gameLauncher(data.user);
-  })
-
-
-});
-
-
-
-
-
-
+};
 })

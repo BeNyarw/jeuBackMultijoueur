@@ -9,11 +9,13 @@ const url = 'mongodb://localhost:27017';
 var madb;
 var mongo = require('./bdd/bdd.js');
 var bodyParser = require('body-parser');
-
+var player = {};
 var app = express();
 app.io = require('socket.io')();
 var routes = require('./routes/index')(app.io);
 var usersRouter = require('./routes/users');
+
+
 
 
 mongo.connect(url,function(err){
@@ -62,42 +64,45 @@ app.use(function(err, req, res, next) {
 });
 
 app.io.on('connection', function(socket){
-  socket.on('moove', function(messages){
-    app.io.emit('mooveDisplay',{
-      user : app.locals.user.user,
-      x : messages.x,
-      y : messages.y
-    })
+  socket.on('gameIn',function(data){
+    app.locals.user.playing = true;
 
-    socket.broadcast.emit('mooveOtherDisplay',{
-      user : messages.user,
-      x : messages.x,
-      y : messages.y
-    })
+    player[app.locals.user.user] = {
+      name : app.locals.user.user,
+      x : 0,
+      y : 0,
+      life : 3,
+      point : 0,
+      socket : socket.id
+    };
+
+    socket.emit('gameProvider', app.locals.user.user)
+    socket.broadcast.emit('warningOtherPlayer',app.locals.user.user)
+
+    if(Object.keys(player).length === 2){
+       app.io.to(player[Object.keys(player)[0]].socket).emit('hey', {name : player[Object.keys(player)[0]].name, otherPlayer : player[Object.keys(player)[1]].name});
+       app.io.to(player[Object.keys(player)[1]].socket).emit('hey', {name : player[Object.keys(player)[1]].name, otherPlayer : player[Object.keys(player)[0]].name});
+    }else if(Object.keys(player).length === 1){
+       app.io.to(player[Object.keys(player)[0]].socket).emit('manque', 'I just met you');
+    }else{
+      app.io.to(player[Object.keys(player)[0]].socket).emit('trop', 'I just met you');
+    }
   })
+  socket.on('moove',function(data){
+    player[data.user].x = data.x;
+    player[data.user].y = data.y;
 
+    app.io.to(player[Object.keys(player)[0]].socket).emit('mooving', {name : player[data.user], x : player[data.user].x, y : player[data.user].y});
+    app.io.to(player[Object.keys(player)[1]].socket).emit('mooving', {name : player[data.user], x : player[data.user].x, y : player[data.user].y});
 
-  socket.on('newPlayer', function(messages){
-    socket.emit('newPlayerAssign',{
-      user : app.locals.user.user
-    })
-    socket.broadcast.emit('OtherPlayerAssign',{
-      user : app.locals.user.user,
-      sockeid : socket.id
-    })
   })
-  socket.on('okep', function(messages){
-    console.log(messages.user)
-    socket.broadcast.to(messages.sockeid).emit('vlaENCULE',{
-      user : messages.user
-    })
+  socket.on('gameOver',function(data){
+    console.log(data)
+    app.io.to(player[data.looser].socket).emit('loose', 'loose');
+    app.io.to(player[data.winner].socket).emit('win', 'win');
+    player = {};
+    socket.disconnect();
   })
-
-  if (app.locals.user) {
-
-  }else {
-    console.log('Stranger is connected');
-  }
 });
 
 

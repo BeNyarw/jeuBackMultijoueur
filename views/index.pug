@@ -2,11 +2,7 @@ extends layout
 
 block content
   h1= title
-  form(action='/login', method='post')
-    label(for='GET-name') Login : 
-    input#GET-name(type='text', name='login')
-    label(for='GET-mdp') Mot de passe : 
-    input#GET-passwd(type='text', name='passwd')
-    input(type='submit', value='Enregistrer')
+  a(href="/subscribe")S'inscrire
+  a(href="/subscribe")Se connecter
   p= message
 block footer

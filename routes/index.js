@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const url = mongodb+srv://belkacem:wC7dMsSX2s0PDBke/@cluster0-1po8u.mongodb.net/test?retryWrites=true&w=majority
+const url = 'mongodb+srv://belkacem:wC7dMsSX2s0PDBke@cluster0-1po8u.mongodb.net/test?retryWrites=true&w=majority'
 var madb;
 var create = require('../bdd/schema.js');
 var mongo = require('../bdd/bdd.js');

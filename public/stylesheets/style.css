@@ -1,8 +1,205 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@import url('https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Comfortaa:300,400,500,700&display=swap');
+*{padding: 0px;margin:0px;}
+html{
+  height: 100%;
+  overflow: hidden;
+}
+body{
+  height : 100%;
+  background: -webkit-linear-gradient(#8283b9, #efbcb5);
+  background: -o-linear-gradient(#8283b9, #efbcb5);
+  background: linear-gradient(#8283b9, #efbcb5);
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+body > img{
+  position: fixed;
+  width : 50px;
+  height : 50px;
+  cursor: pointer;
+}
+body > #next{
+  right : 20px;
+  top : 50%;
+}
+body > #previous{
+  left : 20px;
+  top : 50%;
+}
+#logo{
+  margin: 0px auto;
+  width: 50px;
+}
+#logo > img{
+  width: 50px;
+}
+nav{
+  width: 100%;
+  color: white;
+  font-family: 'Amatic SC', cursive;
+  margin-top: 40px;
+}
+nav > ul{
+  width: 20%;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+nav > ul > li {
+  list-style-type: none;
+  width : 32%;
+  display: inline-block;
+  text-align: center;
+  height: 35px;
+  cursor: pointer;
+  font-size: 1.7em;
+}
+#content{
+  height: 100%;
 }
 
-a {
-  color: #00B7FF;
+/*Accueil*/
+.presentation{
+  width: 40%;
+  margin: 0px auto;
+  text-align: center;
+  color: white;
+  font-weight: 300;
+  height: 100%;
+}
+#presentationWrapper > h1{
+  font-size: 2.5em;
+    font-weight: 300;
+}
+#presentationWrapper > h2{
+  font-size: 1.5em;
+  font-weight: 300;
+}
+#presentationWrapper > p{
+  font-weight: 300;
+  margin: 30px auto;
+  width: 60%;
+}
+#presentationWrapper img{
+  width: 200px;
+}
+#presentationWrapper #carre1{
+  position: absolute;
+  left: 15%;
+  top: 20%;
+}
+#presentationWrapper #carre2{
+  position: absolute;
+  right: 15%;
+  bottom: 20%;
+}
+#presentationWrapper{
+  margin-top: 35%;
+}
+#description{
+  display: inline-block;
+  width: 25%;
+  height: 80%;
+  margin : 100px auto;
+  text-align: center;
+  vertical-align: top;
+  color: white;
+  font-weight: 300;
+}
+
+#description > h1,#description > h2{
+  font-family: 'Amatic SC', cursive;
+}
+#description > p{
+  margin-top: 20px;
+}
+
+
+
+/*CV*/
+#cvWrapper{
+  width: 80%;
+  height: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#cvWrapper > img{
+  height: 80%;
+}
+
+
+
+
+/* Game Style */
+
+#game > div #sidebar{
+  position: absolute;
+  left : 45%;
+  top : 30%;
+  background-color: #0e172a;
+  width: 10%;
+  height: 30%;
+  display: none;
+  z-index: 10001;
+}
+#game > div #sidebar > #msg{
+  text-align: center;
+  text-transform: uppercase;
+  color: white;
+  margin: 10px 0px;
+}
+#game > div #sidebar > input{
+  border : 1px solid white;
+  background-color: inherit;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0px;
+  margin: 3px 0px;
+  cursor: pointer;
+  color: white;
+}
+#game > div #main{
+  background-color: #b99fb8;
+  border: 5px solid #0e172a;
+  background-position: center center;
+  background-size: cover;
+}
+#game > div #main > #tuto{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  border: 5px solid #0e172a;
+}
+#game{
+  width : 100%;
+  height : 100%;
+}
+.game{
+  width : 100%;
+  height : 100%;
+  text-align: center;
+}
+#gameWindow{
+  position: relative;
+  width: 65%;
+  margin : 20px;
+  height: 80%;
+  display: inline-block;
+}
+#powerGravityOff{
+  display: none;
+}
+
+#demarrer{
+  position: absolute;
+  bottom: 20px;
+  left: 42%;
+  width: 200px;
+  background-color: #8283b9;
+  color: white;
+  border: 2px solid white;
+  height: 30px;
+  cursor: pointer;
+  z-index: 1000;
 }

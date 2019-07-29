@@ -2,4 +2,8 @@ extends layout
 
 block content
   h1= title
+  a(href='/logout') Déconnexion
+  a(href='/room') Jouer
   p= message
+  ul#userConnected
+  script(src="/scripts/socket.js")

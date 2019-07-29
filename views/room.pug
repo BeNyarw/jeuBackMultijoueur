@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1= title
+  a(href='/logout') Déconnexion
+  div#game
+    div#gameWindow
+      div#main
+        canvas#canvas
+  script(src="/scripts/jeu.js")

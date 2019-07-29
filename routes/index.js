@@ -22,27 +22,30 @@ router.get('/', function(req, res, next) {
 router.get('/admin',function(req,res){
   if (req.session.user) {
     var collectionUser = madb.collection('users');
-    collectionUser.find({login:{$eq:req.session.user}}).toArray(function(err, dataUser){
-      res.render('admin', { title: req.session.user });
+    collectionUser.find({connected:{$eq:true}}).toArray(function(err, dataUser){
+      res.render('admin', { title: req.session.user});
     })
   }else {
     res.redirect('/login')
   }
 });
-router.get('/subrscibe', function(req, res, next) {
-  res.render('subrscibe', { title: 'Jeu d Belka !' });
+router.get('/subscribe', function(req, res, next) {
+  res.render('subscribe', { title: 'Jeu d Belka !' });
 });
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Jeu d Belka !' });
 });
+router.get('/room', function(req, res, next) {
 
-router.post('/subrscibe', (req, res) => {
+
+  res.render('room', { title: 'Jeu d Belka !' });
+});
+
+router.post('/subscribe', (req, res) => {
   var login = req.body.login;
   var mdp = req.body.password;
-  //var add = new create.User(1,login,mdp,'normal')
   var collection = madb.collection('users');
 
-  //collection.updateOne({},{$set:add},{upsert:true});
   collection.find({login:{$eq:req.body.login}}).toArray(function(err, data){
     var addUsers = function(){
       var add = new create.User(1,login,mdp,'normal');
@@ -63,13 +66,49 @@ router.post('/login', (req, res) => {
     }else {
       if (req.body.password === data[0].passwd) {
         req.session.user = login;
-        res.redirect('/admin');
         req.app.locals.user = req.session;
+        collection.updateOne({login:{$eq:req.session.user}},{$set:{connected:true}});
+        res.redirect('/admin');
       }else {
         res.redirect('/admin');
       }
     }
   });
 })
+router.get('/logout',function(req,res){
+    var collection = madb.collection('users');
+    if (req.session) {
+      collection.updateOne({login:{$eq:req.session.user}},{$set:{connected:false}});
+      req.session.destroy(function(err){
+        if (err) {
+          return res.redirect('/login')
+          throw err;
+        }else {
+          return res.redirect('/login')
+        }
+      })
+    }
+});
 
-module.exports = router;
+
+module.exports = function (io) {
+  mongo.connect(url,function(err){
+    if (err) {
+       throw err
+     }else{
+      madb = mongo.get().db('backjeu')
+      io.on('connection', function (socket) {
+        var collectionUser = madb.collection('users');
+        collectionUser.find({connected:{$eq:true}}).toArray(function(err, dataUser){
+          let arrConnected = [];
+          dataUser.map((user,index)=>{
+            arrConnected.push(user.login)
+          })
+          socket.emit('userConnected',arrConnected)
+        })
+      });
+
+     }
+  })
+    return router;
+};

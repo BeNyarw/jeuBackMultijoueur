@@ -1,5 +1,5 @@
 window.addEventListener('load',function(){
-  var socket = io('http://localhost:3000');
+  var socket = io('https://jeubackbelkacem.herokuapp.com');
   var user = '';
 
 
@@ -623,7 +623,7 @@ window.addEventListener('load',function(){
       msg.innerHTML = "Perdu"
       setTimeout(function(){
         socket.disconnect();
-        window.location.replace('http://localhost:3000/logout')
+        window.location.replace('https://jeubackbelkacem.herokuapp.com/logout')
       },2000)
 
 
@@ -633,7 +633,7 @@ window.addEventListener('load',function(){
       msg.innerHTML = "Gagné !"
       setTimeout(function(){
         socket.disconnect()
-        window.location.replace('http://localhost:3000/logout')
+        window.location.replace('https://jeubackbelkacem.herokuapp.com/logout')
       },2000)
 
     })

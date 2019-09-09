@@ -1,0 +1,25 @@
+html
+  head
+    block head
+  body
+    div(id='head')
+      if connected
+        div(id="user")
+          h1(id="userName")= message
+          div
+            a(id="adminLink" href='/admin') Admin panel
+          div
+            a(id="logout" href='/logout') logout
+        div(class="message")
+          p.destination
+          ul.chatmessage            
+          form.formtamere(action='')
+            input.m(autocomplete='off')
+            button.sendu Send
+          
+      block menu
+    div(id='main')
+      block content
+    div(id='foot')
+      block foot
+      script(src="/socket/socket.io.js")

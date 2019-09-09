@@ -1,0 +1,15 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  form(action='/addArticle', method='post')
+    label(for='GET-name') Titre :
+    input#GET-name(type='text', name='title')
+    label(for='GET-fname') Contenu :
+    input#GET-fname(type='textarea', name='content')
+    input(type='submit', value='Enregistrer')
+  p= message
+block foot
+    include footer.pug

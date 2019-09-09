@@ -1,0 +1,13 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  h1= message
+  a(href='/subscribe') Subs
+  br
+  a(href='/login') Login
+
+block foot
+    include footer.pug

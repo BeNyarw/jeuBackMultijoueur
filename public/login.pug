@@ -1,0 +1,15 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  form(action='/loginResolv', method='post')
+    label(for='GET-name') Login :
+    input#GET-name(type='text', name='login')
+    label(for='GET-fname') Mot de passe :
+    input#GET-fname(type='password', name='passwd')
+    input(type='submit', value='Enregistrer')
+  p= message
+block foot
+    include footer.pug

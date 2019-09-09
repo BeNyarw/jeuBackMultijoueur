@@ -1,0 +1,14 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  form(action='/subsResolve', method='post')
+    label(for='GET-name') Login :
+    input#GET-name(type='text', name='login')
+    label(for='GET-fname') Mot de pass :
+    input#GET-fname(type='text', name='passwd')
+    input(type='submit', value='Enregistrer')
+block foot
+    include footer.pug

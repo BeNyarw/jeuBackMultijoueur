@@ -1,0 +1,37 @@
+extends layout.pug
+
+block head
+  include head.pug
+  
+block content
+  a(id="jeuLien" href='/room') New article
+  div(id='post-list')
+    h1 Mes posts
+    each val in post
+      ul(class='list')
+        li
+          h2= val.title
+        li
+          p= val.content 
+        li
+          p= val.date
+    a(id="addArticle" href='/article') New article
+  div(id='friend-list')
+    h1 Mes amis 
+    ul(class='list')
+      each val , index in friend 
+        br
+        li
+          a(href='/User/' + friend[index])= friend[index]
+          br
+          p.chatTo(whoIs=friend[index]) Ouvrir un chat avec 
+  div(id='socket')
+    p(id='contentSocket')
+    
+block foot
+    include footer.pug
+    script.
+      
+      document.cookie = "username="+!{JSON.stringify(author)}
+      
+      

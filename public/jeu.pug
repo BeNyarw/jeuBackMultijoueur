@@ -1,0 +1,16 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  div#game
+    div#gameWindow
+      div#main
+        canvas#canvas
+      div#sidebar
+        p#msg
+block foot
+    include footer.pug
+    script
+      include script/jeu.js

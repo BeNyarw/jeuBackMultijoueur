@@ -1,0 +1,27 @@
+extends layout.pug
+
+block head
+  include head.pug
+
+block content
+  p= message
+  br
+  p Mes posts
+  br
+  ul
+    each val in post
+      br
+      li= val.title
+      li= val.content
+  br
+  p Mes amis
+  br
+  ul
+    each val , index in friend 
+      br
+      li= friend[index]
+  br
+  a(href='/addFriend?name=' + message) Ajouter
+  br
+block foot
+    include footer.pug

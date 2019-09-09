@@ -10,7 +10,9 @@ var madb;
 var create = require('./script/creation.js');
 var bodyParser = require('body-parser');
 var app = require('express')()
-var server = app.listen('8081')
+var port = normalizePort(process.env.PORT || '8081');
+
+var server = app.listen(port)
 var io = require('socket.io').listen(server);
 var playing = false;
 var playerWaiting = 0;
@@ -97,7 +99,7 @@ io.on('connection', function(socket){
         }
         players[msg] = socket
         if(playerWaiting === 2 ){
-          io.emit("gameInit",{link:'http://localhost:8081/jeu'})
+          io.emit("gameInit",{link:'/jeu'})
           playerWaiting = 0;
           playing = true;
         }
@@ -120,7 +122,7 @@ io.on('connection', function(socket){
     })
     socket.on('win',function(star){
       io.emit('winServer',star)
-      
+
     })
     socket.on('loose',function(star){
       io.emit('looseServer',star)

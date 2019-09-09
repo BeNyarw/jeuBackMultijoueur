@@ -15,7 +15,7 @@ $(function(){
       return "";
     }
     var userPlayer = getCookie("username")
-    var socket = io('http://localhost:8081');
+    var socket = io('https://jeubackbelkacem.herokuapp.com');
     socket.on('connect',function(){
       socket.on('newConnection',function(msg){
 

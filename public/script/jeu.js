@@ -17,7 +17,7 @@ window.addEventListener('load',function(){
   return "";
 }
   $(function(){
-      var socket = io('http://localhost:8081');
+      var socket = io('https://jeubackbelkacem.herokuapp.com');
       var gameLaunch = function(prem,sec,gal){
         var ctx = canvas.getContext('2d');
         var main = document.getElementById('main');

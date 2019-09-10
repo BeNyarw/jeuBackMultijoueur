@@ -10,7 +10,7 @@ var madb;
 var create = require('./script/creation.js');
 var bodyParser = require('body-parser');
 var app = require('express')()
-var port = normalizePort(process.env.PORT || '8081');
+var port = process.env.PORT
 
 var server = app.listen(port)
 var io = require('socket.io').listen(server);
